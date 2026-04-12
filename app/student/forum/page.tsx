@@ -1,175 +1,213 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import {
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  getFirestore,
-  onSnapshot,
-  orderBy,
-  query,
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaPlus, FaFilter, FaFire, FaClock, FaCheckCircle, FaUserGraduate } from "react-icons/fa";
+import { db, auth } from "../../../lib/firebase";
+import { 
+  collection, 
+  onSnapshot, 
+  query, 
+  orderBy, 
+  addDoc, 
+  serverTimestamp, 
+  updateDoc, 
+  doc, 
+  incrementArray 
 } from "firebase/firestore";
-import { app } from "@/lib/firebase";
-import { categorizeForumMessage } from "@/lib/academic";
-import { FaArrowLeft, FaPaperPlane, FaTags } from "react-icons/fa";
+import Link from "next/link";
+import Stnav from "../../components/Stnav";
+import NeuralBackground from "../../components/NeuralBackground";
 
-const categories = [
-  "All",
-  "Assignments",
-  "Attendance",
-  "Timetable",
-  "Marks",
-  "Exams",
-  "Study Groups",
-  "General",
-];
+interface Post {
+  id: string;
+  title: string;
+  content: string;
+  author: string;
+  category: string;
+  timestamp: any;
+  votes: number;
+  isOfficial?: boolean;
+}
+
+const PostCard = ({ post }: { post: Post }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="glass-card p-6 md:p-8 rounded-[2rem] hover:border-[#0096FF]/40 transition-all duration-300 relative group overflow-hidden"
+    >
+      <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+        <FaUserGraduate size={80} />
+      </div>
+
+      <div className="flex items-center space-x-3 mb-4">
+        <div className="text-[10px] font-mono text-[#0096FF] border border-[#0096FF]/30 px-3 py-1 rounded-full uppercase tracking-widest">
+          {post.category}
+        </div>
+        {post.isOfficial && (
+          <div className="flex items-center space-x-1 text-[10px] font-mono text-green-500 bg-green-500/10 px-3 py-1 rounded-full uppercase tracking-widest">
+            <FaCheckCircle /> <span>OFFICIAL_BROADCAST</span>
+          </div>
+        )}
+      </div>
+
+      <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-[#0096FF] transition-colors line-clamp-1 italic">
+        {post.title}
+      </h3>
+      <p className="text-gray-400 text-sm leading-relaxed mb-6 line-clamp-2 font-medium">
+        {post.content}
+      </p>
+
+      <div className="flex items-center justify-between pt-6 border-t border-white/5">
+        <div className="flex items-center space-x-4">
+           <div className="text-xs font-mono text-gray-500">
+             BY: <span className="text-white">{post.author.split('@')[0]}</span>
+           </div>
+           <div className="text-[10px] text-gray-600 font-mono">
+             {post.timestamp?.toDate().toLocaleDateString() || "SYNCING..."}
+           </div>
+        </div>
+        <div className="flex items-center space-x-2 text-[#0096FF]">
+            <FaFire className="animate-pulse" />
+            <span className="font-black text-lg">{post.votes || 0}</span>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 export default function StudentForum() {
-  const [messages, setMessages] = useState<any[]>([]);
-  const [newMessage, setNewMessage] = useState("");
-  const [user, setUser] = useState<any>(null);
-  const [username, setUsername] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("All");
-
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [filter, setFilter] = useState("ALL");
+  const [isPosting, setIsPosting] = useState(false);
+  const [newPost, setNewPost] = useState({ title: "", content: "", category: "GENERAL" });
 
   useEffect(() => {
-    const unsubAuth = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-
-      if (currentUser) {
-        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-        if (userDoc.exists()) {
-          setUsername(userDoc.data().username || userDoc.data().name || "Anonymous Student");
-        }
-      }
+    const q = query(collection(db, "forum_posts"), orderBy("timestamp", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const postData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
+      setPosts(postData);
     });
+    return () => unsubscribe();
+  }, []);
 
-    const forumQuery = query(collection(db, "forum"), orderBy("createdAt", "asc"));
-    const unsubForum = onSnapshot(forumQuery, (snapshot) => {
-      const nextMessages = snapshot.docs.map((messageDoc) => {
-        const data = messageDoc.data();
-        return {
-          id: messageDoc.id,
-          ...data,
-          category: data.category || categorizeForumMessage(data.text || ""),
-        };
+  const handleCreatePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPost.title || !newPost.content) return;
+    
+    try {
+      await addDoc(collection(db, "forum_posts"), {
+        ...newPost,
+        author: auth.currentUser?.email || "Anonymous",
+        votes: 0,
+        timestamp: serverTimestamp(),
+        isOfficial: false
       });
-      setMessages(nextMessages);
-    });
-
-    return () => {
-      unsubAuth();
-      unsubForum();
-    };
-  }, [auth, db]);
-
-  const filteredMessages = messages.filter(
-    (message) => categoryFilter === "All" || message.category === categoryFilter
-  );
-
-  const sendMessage = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!newMessage.trim() || !user) {
-      return;
+      setIsPosting(false);
+      setNewPost({ title: "", content: "", category: "GENERAL" });
+    } catch (err) {
+      console.error(err);
     }
-
-    const category = categorizeForumMessage(newMessage);
-
-    await addDoc(collection(db, "forum"), {
-      text: newMessage,
-      category,
-      senderId: user.uid,
-      senderName: `${username} (Student)`,
-      createdAt: new Date().toISOString(),
-    });
-
-    setNewMessage("");
-    setCategoryFilter(category);
   };
 
+  const filteredPosts = filter === "ALL" ? posts : posts.filter(p => p.category === filter);
+
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center">
-      <div className="w-full max-w-6xl p-6">
-        <Link
-          href="/student"
-          className="text-gray-400 hover:text-[#0096FF] flex items-center mb-6 transition"
-        >
-          <FaArrowLeft className="mr-2" /> Back to Dashboard
-        </Link>
-
-        <div className="rounded-[2rem] border border-gray-800 bg-gradient-to-br from-gray-900 via-black to-gray-950 p-8 shadow-[0_0_40px_rgba(0,150,255,0.08)]">
-          <p className="mb-3 inline-flex items-center rounded-full border border-[#0096FF]/30 bg-[#0096FF]/10 px-4 py-1 text-xs font-bold uppercase tracking-[0.3em] text-[#7fc9ff]">
-            Categorised Forum
-          </p>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-[#0096FF]">Discussion Forum</h1>
-          <p className="mt-4 text-gray-400">
-            New posts are automatically categorised so students can jump straight to the right topic.
-          </p>
-        </div>
-
-        <div className="mt-6 flex flex-wrap gap-3">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setCategoryFilter(category)}
-              className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                categoryFilter === category
-                  ? "border-[#0096FF] bg-[#0096FF] text-black"
-                  : "border-gray-700 bg-gray-900 text-gray-300 hover:border-[#0096FF] hover:text-white"
-              }`}
-            >
-              <FaTags className="mr-2 inline text-xs" />
-              {category}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 max-w-6xl mx-auto w-full custom-scrollbar flex flex-col">
-        {filteredMessages.map((message) => (
-          <div
-            key={message.id}
-            className={`p-4 rounded-2xl w-fit max-w-[82%] ${
-              message.senderId === user?.uid
-                ? "bg-[#0096FF] text-black self-end rounded-tr-sm"
-                : "bg-gray-800 text-white self-start rounded-tl-sm shadow-md border border-gray-700"
-            }`}
-          >
-            <div className="flex items-center gap-3 mb-2">
-              <p className="text-xs opacity-70 font-bold tracking-wider">{message.senderName}</p>
-              <span className="rounded-full border border-current/20 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.2em]">
-                {message.category}
-              </span>
+    <div className="min-h-screen bg-black text-white flex">
+      <Stnav />
+      <NeuralBackground />
+      
+      <main className="flex-1 p-6 md:p-12 relative z-10 overflow-y-auto mt-16 md:mt-0">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 space-y-6 md:space-y-0">
+            <div>
+              <p className="text-[#0096FF] font-mono text-xs tracking-[0.4em] mb-4">NEURAL_HUB_DASHBOARD</p>
+              <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase">
+                STUDENT <span className="text-[#0096FF] italic">FORUM</span>
+              </h1>
             </div>
-            <p className="text-lg leading-snug">{message.text}</p>
+            
+            <button 
+              onClick={() => setIsPosting(true)}
+              className="px-8 py-4 bg-[#0096FF] text-black font-black rounded-full hover:bg-white transition-all shadow-[0_0_20px_rgba(0,150,255,0.4)] flex items-center"
+            >
+              <FaPlus className="mr-3" /> INITIATE_THREAD
+            </button>
           </div>
-        ))}
-      </div>
 
-      <div className="p-6 max-w-6xl mx-auto w-full">
-        <form onSubmit={sendMessage} className="flex shadow-2xl">
-          <input
-            type="text"
-            className="flex-1 p-4 rounded-l-xl bg-gray-900 border border-gray-700 text-white focus:outline-none focus:border-[#0096FF] transition"
-            placeholder="Type a message to the public forum..."
-            value={newMessage}
-            onChange={(event) => setNewMessage(event.target.value)}
-          />
-          <button
-            type="submit"
-            disabled={!newMessage.trim()}
-            className="bg-[#0096FF] text-black px-8 rounded-r-xl font-bold text-xl hover:bg-[#007bcc] transition disabled:opacity-50"
-          >
-            <FaPaperPlane />
-          </button>
-        </form>
-      </div>
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-4 mb-10">
+             <div className="p-1 glass-card rounded-full flex items-center space-x-1">
+                {["ALL", "GENERAL", "ACADEMICS", "EVENTS"].map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setFilter(f)}
+                    className={`px-6 py-2 rounded-full text-[10px] font-mono tracking-widest transition-all ${filter === f ? "bg-[#0096FF] text-black" : "hover:bg-white/5 text-gray-400"}`}
+                  >
+                    {f}
+                  </button>
+                ))}
+             </div>
+          </div>
+
+          {/* New Post Modal */}
+          <AnimatePresence>
+            {isPosting && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-6"
+              >
+                <motion.div 
+                  initial={{ scale: 0.9, y: 20 }}
+                  animate={{ scale: 1, y: 0 }}
+                  className="bg-[#0a0a0a] border border-white/10 p-10 rounded-[3rem] max-w-xl w-full"
+                >
+                   <h2 className="text-3xl font-black text-white mb-8 tracking-tighter italic uppercase underline decoration-[#0096FF]">CREATE_NEW_THREAD</h2>
+                   <form onSubmit={handleCreatePost} className="space-y-6">
+                      <input 
+                        placeholder="THREAD_TITLE"
+                        className="w-full bg-white/5 border border-white/10 p-4 rounded-xl font-mono text-sm focus:border-[#0096FF] outline-none transition-colors"
+                        value={newPost.title}
+                        onChange={(e) => setNewPost({...newPost, title: e.target.value})}
+                      />
+                      <select 
+                        className="w-full bg-white/5 border border-white/10 p-4 rounded-xl font-mono text-sm focus:border-[#0096FF] outline-none appearance-none"
+                        value={newPost.category}
+                        onChange={(e) => setNewPost({...newPost, category: e.target.value})}
+                      >
+                         <option value="GENERAL">GENERAL</option>
+                         <option value="ACADEMICS">ACADEMICS</option>
+                         <option value="EVENTS">EVENTS</option>
+                      </select>
+                      <textarea 
+                        placeholder="INPUT_NEURAL_DATA_HERE..."
+                        rows={5}
+                        className="w-full bg-white/5 border border-white/10 p-4 rounded-xl font-mono text-sm focus:border-[#0096FF] outline-none transition-colors resize-none"
+                        value={newPost.content}
+                        onChange={(e) => setNewPost({...newPost, content: e.target.value})}
+                      />
+                      <div className="flex space-x-4">
+                        <button type="submit" className="flex-1 py-4 bg-[#0096FF] text-black font-black rounded-full hover:shadow-[0_0_20px_rgba(0,150,255,0.4)] transition-all">PUBLISH_STREAM</button>
+                        <button type="button" onClick={() => setIsPosting(false)} className="flex-1 py-4 glass-card font-black rounded-full hover:bg-red-500 transition-all">ABORT</button>
+                      </div>
+                   </form>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Posts Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20">
+            {filteredPosts.map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
