@@ -1,40 +1,52 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
-import Squares from "./Squares";
+import NeuralBackground from "./NeuralBackground";
 
-
-const fadeInUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
-};
 
 const Hero: React.FC = () => {
 
   return (
-    <div className="relative min-h-screen bg-black flex flex-col">
-      <div className="relative h-[85vh] overflow-hidden">
-        <Squares speed={0.3} squareSize={40} direction="diagonal" borderColor="rgba(255, 255, 255, 0.1)" hoverFillColor="#0096FF" />
-        <main className="absolute inset-0 z-10 flex flex-col justify-center items-center text-center mt-[-80px]">
+    <div className="relative min-h-[90vh] bg-black flex flex-col pt-20">
+      <NeuralBackground />
+      <div className="relative z-10 flex flex-col justify-center items-center text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className="relative"
+        >
+          {/* Subtle Glow Behind Text */}
+          <div className="absolute inset-0 bg-[#0096FF]/20 blur-[100px] rounded-full" />
+          
+          <h1 className="relative text-5xl md:text-8xl font-black text-white tracking-tighter leading-none mb-2">
+            WELCOME TO
+          </h1>
+          <h2 className="relative text-4xl md:text-7xl font-bold text-[#0096FF] tracking-tight drop-shadow-[0_0_15px_rgba(0,150,255,0.5)]">
+            STUDENT SPHERE
+          </h2>
+        </motion.div>
 
-        <motion.h1 variants={fadeInUp} initial="hidden" animate="visible" className="text-4xl md:text-6xl font-extrabold text-[#0096FF] tracking-tight drop-shadow-lg">
-            Welcome to
-          </motion.h1>
-          <motion.h2 variants={fadeInUp} initial="hidden" animate="visible" className="text-3xl md:text-5xl font-bold text-white mt-4">
-            Student Sphere
-          </motion.h2>
-          <motion.p variants={fadeInUp} initial="hidden" animate="visible" className="text-sm md:text-base text-gray-400 mt-6 max-w-2xl mx-auto leading-relaxed">
-          A Unified Platform for Students to Connect, Collaborate, and Thrive.
-          </motion.p>
-          <motion.div variants={fadeInUp} initial="hidden" animate="visible" className="mt-10">
-            <button aria-label="View Latest Events" className="inline-flex h-12 animate-shimmer items-center justify-center rounded-md border border-gray-500 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium text-slate-400 hover:text-white">
-              <a href="/sign-in">Explore!</a>
-            </button>
-          </motion.div>
-        </main>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.5 }}
+          className="text-gray-400 mt-8 max-w-xl mx-auto text-lg md:text-xl font-medium tracking-wide"
+        >
+          THE ULTIMATE DECENTRALIZED CAMPUS ECOSYSTEM
+        </motion.p>
         
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="mt-12 flex space-x-4"
+        >
+          <button className="px-10 py-4 bg-[#0096FF] text-black font-bold rounded-full hover:bg-white transition-all duration-300 shadow-[0_0_20px_rgba(0,150,255,0.5)] hover:shadow-[0_0_30px_white]">
+            <a href="/sign-in">INITIATE EXPLORATION</a>
+          </button>
+        </motion.div>
       </div>
-
     </div>
   );
 };

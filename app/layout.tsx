@@ -29,6 +29,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
+        <TerminalBoot />
+        <SystemHUD />
+        <CustomCursor />
+        <div className="noise-overlay" />
         {children}
         <Footer/>
       </body>

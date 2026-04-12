@@ -54,11 +54,11 @@ const Footer: React.FC = () => {
                   <span>shreybansal365@gmail.com</span>
                 </a>
                 <a
-                  href="tel:+911413999100"
+                  href="tel:+919773828948"
                   className="flex items-center text-gray-400 hover:text-[#0096FF] transition-colors group"
                 >
                   <FaPhone className="mr-3 group-hover:scale-110 transition-transform" size={18} />
-                  <span>+91 141-3999100</span>
+                  <span>+91 9773828948</span>
                 </a>
               </div>
             </div>
