@@ -36,49 +36,70 @@ const features = [
   },
 ];
 
+import { useMotionValue, useSpring, useTransform } from "framer-motion";
+
+// ... (features array remains the same)
+
 const Card3D = ({ feature }: { feature: any }) => {
-  const cardRef = React.useRef<HTMLDivElement>(null);
-  const [rotate, setRotate] = React.useState({ x: 0, y: 0 });
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x);
+  const mouseYSpring = useSpring(y);
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["10deg", "-10deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-10deg", "10deg"]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const rotateX = (y - centerY) / 10;
-    const rotateY = (centerX - x) / 10;
-    setRotate({ x: rotateX, y: rotateY });
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
   };
 
   const handleMouseLeave = () => {
-    setRotate({ x: 0, y: 0 });
+    x.set(0);
+    y.set(0);
   };
 
   return (
     <motion.div
-      ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
+        rotateX,
+        rotateY,
         transformStyle: "preserve-3d",
-        transform: `perspective(1000px) rotateX(${rotate.x}deg) rotateY(${rotate.y}deg)`,
       }}
-      className="group relative bg-[#0a0a0a] border border-white/5 p-8 rounded-[2rem] transition-all duration-200 hover:border-[#0096FF]/40 hover:shadow-[0_0_30px_rgba(0,150,255,0.1)] overflow-hidden"
+      className="group relative bg-[#0a0a0a] border border-white/5 p-8 rounded-[2.5rem] overflow-hidden cursor-pointer"
     >
+      {/* Holographic Glint Overlay */}
+      <motion.div 
+        style={{
+            background: "radial-gradient(circle at center, rgba(0,150,255,0.15) 0%, transparent 80%)",
+            translateX: useTransform(mouseXSpring, [-0.5, 0.5], ["-50%", "50%"]),
+            translateY: useTransform(mouseYSpring, [-0.5, 0.5], ["-50%", "50%"]),
+        }}
+        className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+      />
+
       <div className="absolute inset-0 bg-gradient-to-br from-[#0096FF]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       
-      <div style={{ transform: "translateZ(50px)" }} className="relative z-10">
-        <div className="mb-6 w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 group-hover:border-[#0096FF]/50 group-hover:bg-[#0096FF]/10 transition-all duration-500">
+      <div style={{ transform: "translateZ(75px)" }} className="relative z-10">
+        <div className="mb-6 w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 group-hover:border-[#0096FF]/50 group-hover:bg-[#0096FF]/10 transition-all duration-700">
           {feature.icon}
         </div>
-        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-[#0096FF] transition-colors">{feature.title}</h3>
-        <p className="text-gray-500 text-sm leading-relaxed">{feature.description}</p>
+        <h3 className="text-xl font-black text-white mb-2 group-hover:text-[#0096FF] transition-colors italic tracking-tight">{feature.title}</h3>
+        <p className="text-gray-500 text-sm leading-relaxed font-medium">{feature.description}</p>
       </div>
 
-      {/* Decorative Corner Glow */}
-      <div className="absolute -top-10 -right-10 w-20 h-20 bg-[#0096FF]/20 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+      {/* Modern Perspective Lines */}
+      <div className="absolute bottom-0 right-0 w-32 h-32 border-r border-b border-[#0096FF]/10 rounded-br-[2.5rem] pointer-events-none group-hover:border-[#0096FF]/30 transition-all" />
     </motion.div>
   );
 };

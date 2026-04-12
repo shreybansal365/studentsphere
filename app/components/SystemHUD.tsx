@@ -51,7 +51,8 @@ const SystemHUD: React.FC = () => {
           <p>TIME: {time}</p>
           <p>INFRA_LATENCY: {metrics.lat}MS</p>
           <p>GRID_LOAD: {metrics.cpu}%</p>
-          <p className="text-white/40 italic">LINKED_BY_SHREYBANSAL</p>
+          <p className="text-[#0096FF]/80 font-black italic">MASTER_ARCHITECT: SHREY BANSAL</p>
+          <p className="text-white/20 text-[8px] uppercase tracking-tighter italic">Source_Integrity_Verified</p>
         </motion.div>
       </div>
 
