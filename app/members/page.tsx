@@ -3,58 +3,65 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { FaLinkedin, FaGithub, FaEnvelope } from "react-icons/fa";
-import { useInView } from "react-intersection-observer";
 import Navbar from "../components/Navbar";
-
-const developers = [
-  {
-    name: "Student Developer 1",
-    linkedin: "https://linkedin.com/",
-    github: "https://github.com/",
-    email: "mailto:student1@muj.manipal.edu",
-    photo: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80",
-    batch: "CSE 2026",
-  },
-  {
-    name: "Student Developer 2",
-    linkedin: "https://linkedin.com/",
-    github: "https://github.com/",
-    email: "mailto:student2@muj.manipal.edu",
-    photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80",
-    batch: "CSE 2026",
-  }
-];
 
 export default function DevelopersPage() {
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center px-4 py-8">
+    <div className="min-h-screen bg-black text-white flex flex-col items-center">
       <Navbar />
-      {/* 
+      
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, ease: "easeInOut" }}
-        className="flex flex-col items-center"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="flex flex-col items-center mt-20 px-6 max-w-4xl text-center"
       >
-        <h1 className="text-5xl font-extrabold text-[#0096FF] tracking-tight drop-shadow-lg mb-8">
-          Meet the Team
+        <h1 className="text-5xl md:text-7xl font-black text-[#0096FF] tracking-tighter mb-6">
+          The Architect
         </h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {developers.map((dev, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: index * 0.1 }}
-              className="bg-gray-900 p-6 rounded-2xl shadow-lg transform transition-all duration-500 hover:scale-105 hover:border hover:border-[#0096FF]"
+        <div className="w-24 h-1.5 bg-gradient-to-r from-[#0096FF] to-transparent mb-12 rounded-full"></div>
+
+        <div className="bg-gray-900 border border-gray-800 p-8 md:p-12 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+          {/* Subtle glow effect */}
+          <div className="absolute top-0 left-0 w-full h-full bg-[#0096FF]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          
+          <h2 className="text-3xl md:text-4xl font-bold mb-2">Shrey Bansal</h2>
+          <p className="text-[#0096FF] font-mono tracking-widest uppercase text-sm mb-6">
+            Lead Software Engineer & UI Designer
+          </p>
+          
+          <p className="text-gray-400 text-lg leading-relaxed mb-10 max-w-2xl">
+            Computer Science student at Manipal University Jaipur. Focused on building high-performance, 
+            secure, and aesthetically driven digital experiences. StudentSphere represents the 
+            culmination of engineering academic management tools from the ground up.
+          </p>
+
+          <div className="flex justify-center space-x-8">
+            <a 
+              href="https://github.com/shreybansal365" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-gray-500 hover:text-white transition-colors duration-300"
             >
-              <h2 className="text-2xl font-bold text-center mb-4">{dev.name}</h2>
-              <p className="text-center text-gray-400">Batch {dev.batch}</p>
-            </motion.div>
-          ))}
+              <FaGithub size={28} />
+            </a>
+            <a 
+              href="https://linkedin.com/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-gray-500 hover:text-[#0077b5] transition-colors duration-300"
+            >
+              <FaLinkedin size={28} />
+            </a>
+            <a 
+              href="mailto:shreybansal365@gmail.com" 
+              className="text-gray-500 hover:text-[#0096FF] transition-colors duration-300"
+            >
+              <FaEnvelope size={28} />
+            </a>
+          </div>
         </div>
       </motion.div>
-      */}
     </div>
   );
 }

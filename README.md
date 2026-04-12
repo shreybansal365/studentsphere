@@ -1,102 +1,90 @@
 <div align="center">
-  <img src="./public/muj.svg" alt="Logo" width="80" height="80">
-  <h1 align="center">StudentSphere</h1>
-  <p align="center">
-    <strong>The Next-Generation Decentralized Campus Portal</strong>
-    <br />
-    Architected, designed, and engineered from scratch by <strong>Shrey Bansal</strong>.
-  </p>
+  <img src="./public/muj.svg" alt="StudentSphere Logo" width="120" height="120" />
+  
+  # 🌐 StudentSphere
+  ### The Ultimate Decentralized Campus Ecosystem
+  
+  [![Next.js 15](https://img.shields.io/badge/Next.js-15.1-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+  [![Firebase 11](https://img.shields.io/badge/Firebase-v11-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+  [![Vercel](https://img.shields.io/badge/Deployed-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/)
+  [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](./LICENSE)
 
-  <p align="center">
-    <a href="#vision--problem-statement">Vision</a> •
-    <a href="#core-innovations">Features</a> •
-    <a href="#system-architecture">Architecture</a> •
-    <a href="#tech-stack">Tech Stack</a> •
-    <a href="#contact">Contact</a>
-  </p>
-
-  <p align="center">
-    <img src="https://img.shields.io/badge/Next.js-15.1-black?style=for-the-badge&logo=next.js" alt="Next.js" />
-    <img src="https://img.shields.io/badge/Firebase-v11-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase" />
-    <img src="https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
-    <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License" />
-  </p>
+  **Architected & Developed Solo by [Shrey Bansal](https://github.com/shreybansal365)**
 </div>
 
 ---
 
-## ⚡ Vision & Problem Statement
+## ⚡ The Vision
 
-Modern university students are forced to endure highly fragmented digital experiences. Checking timetables, submitting assignments, tracking attendance, and keeping up with college announcements typically requires bouncing between four or five different outdated platforms.
+Traditional university portals are often fragmented, slow, and outdated. **StudentSphere** was conceptualized to be the definitive "System of Record" for the modern student. It isn't just a dashboard; it's a context-aware academic assistant that bridges the gap between raw data and actionable insights.
 
-**StudentSphere changes that.** 
-
-I built StudentSphere from the ground up to solve this exact problem. It is a deeply integrated, lightning-fast "nervous system" for the entire academic journey. Every pixel of the UI has been custom-designed by me to prioritize modern aesthetics, and the backend has been rigorously engineered to handle sensitive data securely. 
+From live attendance tracking with "Safe-Miss" projections to an AI Strategist that plans your study schedule based on real-time SLCM data, StudentSphere is engineered for the future of education.
 
 ---
 
-## 🚀 Core Innovations
-
-### 🎨 Custom "Glassmorphism" Design System
-Unlike boilerplate layouts, the entire StudentSphere UI is a custom implementation designed with extreme attention to detail.
-- **Dark Mode Native:** Conceptualized initially in dark mode to reduce eye strain during late-night study sessions.
-- **Micro-Animations:** Heavy integration of **Framer Motion** and **GSAP** brings the application to life with fluid transitions, hover states, and dynamic mounting effects.
-- **Responsive Purity:** Complete rendering flawless execution across all breakpoints—from ultra-wide monitors to the smallest mobile screens.
+## 🚀 Key Innovations
 
 ### 🧠 SphereAI: Context-Aware Intelligence
-StudentSphere features a proprietary built-in AI logic that doesn't just answer generic queries. By reading a student's *actual* scraped attendance, timetable, and assignment data, SphereAI acts as a personalized academic strategist—predicting risk factors, suggesting buffer zones for attendance, and planning study schedules.
+Beyond simple LLM integration, SphereAI is fed directly with your real-time academic data. It knows your attendance shortages before you do and suggests buffer zones for your upcoming week.
 
-### 📚 The Dual-Role Academic Hub
-- **Student Dashboard:** An immersive control center where students view live timetables, visually track assignment due dates (with urgency color-coding), access academic materials directly, and monitor deep attendance analytics (including "safe-miss" projections).
-- **Faculty "Admin" Dashboard:** A highly robust administrative suite. Faculty members can seamlessly push new assignments, manage course materials, update live attendance, and instantly broadcast urgent announcements to specific batches—all protected by strict Role-Based Access Control (RBAC).
+### 🛡️ Production-Grade Security
+Built on a **Zero-Trust architecture**. All database interactions are gated by strict role-based access control (RBAC) at the Firestore edge. Students see only their data; Faculty control only their courses.
 
-### 💬 Decentralized Peer Forum
-A structured, automated peer-to-peer discussion forum. With auto-categorized topic sorting and robust role-based guardrails, students can discuss academic material, collaborate on projects, and seek real-time help securely.
-
----
-
-## 🏗️ System Architecture
-
-StudentSphere operates via a highly optimized, dual-engine serverless architecture:
-
-1. **The Edge Scraping Engine (`@sparticuz/chromium` + `puppeteer-core`)**
-   Bypassing Vercel's strict 50MB serverless function limits is notoriously difficult. I engineered a specialized, lightweight headless Chromium instance that scrapes real-time timetable and attendance data on the fly, rendering it directly to the dashboard without overloading memory quotas.
-
-2. **Secure Database Layer (Firebase Firestore & Auth)**
-   StudentSphere is deeply protected. The platform runs on **Production Firestore Security Rules**. Every single database interaction is gated by rigid backend checks verifying `request.auth.uid`. Students can only modify their personal files, and faculty data modifications are strictly hard-locked to verified Admin/Faculty accounts.
+### 🕵️ Edge Scraping Engine
+A custom-built scraping pipeline leveraging `@sparticuz/chromium` to bypass serverless memory constraints, fetching real-time data from MUJ SLCM portals in under 3 seconds.
 
 ---
 
-## 🛠️ Deep Tech Stack
+## 🛠️ Specialized Tech Stack
 
-### Frontend Architecture
-- **Framework:** Next.js 15 (App Router paradigm)
-- **Library:** React 19
-- **Language:** TypeScript (Strict Mode)
-- **Styling:** Tailwind CSS, Radix UI primitives
-- **Motion & Physics:** Framer Motion, GSAP
-
-### Backend & Infrastructure
-- **Database Architecture:** Firebase Firestore (NoSQL Document Store)
-- **Identity Provider:** Firebase Authentication
-- **Data Scraping & Structuring:** Puppeteer, Cheerio
-- **Deployment & Edge Computing:** Vercel (CI/CD Integrated)
+| Domain | technology | Rationale |
+| :--- | :--- | :--- |
+| **Core** | `Next.js 15` | App Router paradigm for nested layouts and streaming. |
+| **Identity** | `Firebase Auth` | Secure Microsoft Outlook SSO integration. |
+| **Real-time DB** | `Firestore` | NoSQL architecture for flexible student profiles. |
+| **Scraping** | `Puppeteer-Core` | Edge-compatible headless browser integration. |
+| **Motion** | `Framer Motion` | Fluid, "Apple-like" layout transitions. |
+| **AI Runtime** | `Groq Cloud` | Low-latency Llama 3.3 inference for SphereAI. |
 
 ---
 
-## 🔒 Security & Authentication
-StudentSphere respects zero-trust principles. All data reads/writes enforce strict Role-Based Access Control (RBAC). Bypassing frontend UI limits will immediately be blocked at the database edge.
+## 📐 System Architecture
+
+```mermaid
+graph TD
+    User((Student/Faculty)) -->|Next.js App Router| Frontend[StudentSphere Frontend]
+    Frontend -->|Firebase Auth| AuthServer[Auth Guard]
+    AuthServer -->|Authorized| Dashboard[Role-Based Dashboards]
+    Dashboard -->|API Route| Scraper[Edge Chromium Scraper]
+    Scraper -->|POST| SLCM[University Portal]
+    SLCM -->|RAW Data| Scraper
+    Scraper -->|Structured JSON| Firestore[(Firestore DB)]
+    Firestore -->|Sync| Dashboard
+    Dashboard -->|Context Injection| AI[SphereAI Engine]
+```
 
 ---
 
-## 📬 Let's Connect
+## 🗺️ Roadmap
 
-This project stands as a testament to my ability to identify a real-world problem and design, architect, and deploy a full-scale, robust engineering solution—entirely solo.
+- [x] **Phase 1: Foundations** - Auth, Layout, Core Scraping logic.
+- [x] **Phase 2: Faculty Hub** - Attendance, Assignments, and Marks management.
+- [x] **Phase 3: Intelligence** - SphereAI context-aware integration.
+- [/] **Phase 4: Collaborative Core** - Peer-to-peer forum and batch broadcasts.
+- [ ] **Phase 5: Native Integration** - Progressive Web App (PWA) for mobile-first experience.
 
-- **Developer:** Shrey Bansal
-- **Email:** shrey.23fe10cse00848@muj.manipal.edu
+---
+
+## 📬 Contact & Collaboration
+
+If you're interested in the technical implementation or potential collaboration:
+
+- **Lead Developer:** Shrey Bansal
+- **Email:** [shreybansal365@gmail.com](mailto:shreybansal365@gmail.com)
 - **GitHub:** [@shreybansal365](https://github.com/shreybansal365)
 
-<p align="center">
-  <i>StudentSphere — Empowering Students, Elevating Campus Life.</i>
-</p>
+<div align="center">
+  <br />
+  <sub>Built with ❤️ by Shrey Bansal — Manipal University Jaipur 2026.</sub>
+</div>

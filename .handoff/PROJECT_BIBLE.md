@@ -229,7 +229,7 @@ Document ID = Firebase Auth UID
 ```json
 {
   "name": "Shrey Bansal",
-  "email": "shrey.23fe10cse00848@muj.manipal.edu",
+  "email": "shreybansal365@gmail.com",
   "username": "shrey.23fe10cse00848",
   "rollNo": "23FE10CSE00848",
   "role": "student",
