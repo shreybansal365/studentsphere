@@ -106,8 +106,6 @@ const Footer: React.FC = () => {
         </div>
       </footer>
     </div>
-      </footer>
-    </div>
   );
 };
 
