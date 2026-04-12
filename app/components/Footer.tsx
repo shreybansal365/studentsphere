@@ -1,5 +1,6 @@
-"use client"
+"use client";
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { FaInstagram, FaFacebookF, FaTwitter, FaYoutube, FaLinkedin, FaEnvelope, FaPhone } from "react-icons/fa";
 
 const Footer: React.FC = () => {
