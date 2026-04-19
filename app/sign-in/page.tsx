@@ -68,7 +68,6 @@ const Signin = () => {
       }
     } catch (err: any) {
       setError('AUTHENTICATION_FAILURE');
-      console.log('Login attempt failed:', err.message);
       setIsAuthenticating(false);
     }
   };

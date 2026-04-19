@@ -35,15 +35,12 @@ export async function POST(req: Request) {
     // Set a realistic user agent so SLCM doesn't block the request immediately thinking it's a simple bot
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36');
 
-    // 1. Navigate to the MUJ SLCM portal login page
-    console.log("Navigating to MUJ SLCM...");
     await page.goto('https://mujslcm.jaipur.manipal.edu/', { waitUntil: 'domcontentloaded', timeout: 60000 }); 
 
     // Wait a brief moment for any final Javascript logic to settle on their page before typing 
     await new Promise(r => setTimeout(r, 1000));
 
     // 2. Type the credentials into the HTML input fields
-    console.log("Typing credentials...");
     
     // CRITICAL FIX: MUJ SLCM has custom Javascript that strictly forbids typing '@muj.manipal.edu'
     // It will aggressively delete or block the input if we try to send the full email.
@@ -53,12 +50,11 @@ export async function POST(req: Request) {
     await page.type('#txtPassword', password); 
 
     // 3. Click the Login button and PROPERLY wait for the page to load
-    console.log("Clicking Login...");
     
     await Promise.all([
       page.click('#login_submitStudent'),
       // wait for navigation to complete so we don't try to go to the timetable before we're fully logged in
-      page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => console.log('Navigation wait timed out, continuing anyway...'))
+      page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {})
     ]);
 
     // Check if login failed by looking for an error message or seeing if we are still on the login page
@@ -69,7 +65,6 @@ export async function POST(req: Request) {
     }
 
     // 4. Navigate to the timetable page directly!
-    console.log("Navigating to Timetable...");
     // You will need to inspect the SLCM dashboard to find the exact URL of the student timetable page!
     await page.goto('https://mujslcm.jaipur.manipal.edu/Student/Academic/ViewTimeTableForStudent', { waitUntil: 'domcontentloaded', timeout: 60000 });
 
@@ -77,7 +72,7 @@ export async function POST(req: Request) {
     try {
       await page.waitForSelector('#calendar', { timeout: 10000 });
     } catch (e) {
-      console.log("Calendar selector not found. Taking debug screenshot...");
+      // log suppressed
     }
 
     // 5. Extract REAL Timetable Data via DOM mapping
@@ -115,15 +110,14 @@ export async function POST(req: Request) {
         });
       });
     } catch (e) {
-      console.log("Could not dynamically parse timetable events, defaulting to empty array.");
+      // log suppressed
     }
 
     // 6. Navigate to proper Attendance Summary page and extract REAL data
-    console.log("Navigating to Real Attendance Summary...");
     await page.goto('https://mujslcm.jaipur.manipal.edu/Student/Academic/AttendanceSummaryForStudent', { waitUntil: 'domcontentloaded', timeout: 30000 });
     
     // MUJ uses AJAX to fetch attendance; wait for the #kt_ViewTable rows to populate
-    await page.waitForFunction(() => document.querySelectorAll('#kt_ViewTable tr').length > 1, { timeout: 15000 }).catch(() => console.log('Attendance AJAX timeout'));
+    await page.waitForFunction(() => document.querySelectorAll('#kt_ViewTable tr').length > 1, { timeout: 15000 }).catch(() => {});
 
     let attendanceData = await page.evaluate(() => {
       const rows = Array.from(document.querySelectorAll('#kt_ViewTable tr'));

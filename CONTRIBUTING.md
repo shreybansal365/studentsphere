@@ -1,7 +1,7 @@
 
-# Contribution Guidelines for Student Sphere Website
+# Contribution Guidelines for StudentSphere Website
 
-Thank you for your interest in contributing to the **Student Sphere Website**! We welcome contributions from students, developers, and anyone passionate about improving the project. Please follow the guidelines below to help us maintain a smooth and efficient process.
+Thank you for your interest in contributing to the **StudentSphere Website**! We welcome contributions from students, developers, and anyone passionate about improving the project. Please follow the guidelines below to help us maintain a smooth and efficient process.
 
 ## How to Contribute
 

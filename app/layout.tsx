@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Student Sphere",
-  description: "Unified Academic Ecosystem",
+  title: "StudentSphere",
+  description: "The Centralized Academic Nervous System for Manipal University Jaipur.",
   manifest: "/manifest.json",
   appleWebApp: {
     title: "StudentSphere",
