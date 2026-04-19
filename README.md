@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./public/muj.svg" alt="StudentSphere Logo" width="140" height="140" />
+  <img src="public/muj.svg" alt="StudentSphere Logo" width="140" height="140" />
 
   <h1 align="center">StudentSphere</h1>
   
@@ -109,5 +109,5 @@ For access provisioning, architectural discussions, or collaboration inquiries:
 
 <p align="center">
   <br />
-  <strong>Developed by Shrey Bansal — Manipal University Jaipur 2026.</strong>
+  <strong>Made with ❤️ by Shrey Bansal — Manipal University Jaipur 2026.</strong>
 </p>
