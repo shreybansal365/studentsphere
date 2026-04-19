@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { FaPlus, FaFilter, FaFire, FaClock, FaCheckCircle, FaUserGraduate, FaMicrophone, FaStop } from "react-icons/fa";
 import { db, auth } from "../../../lib/firebase";
 import { 
@@ -12,11 +12,9 @@ import {
   addDoc, 
   serverTimestamp, 
   updateDoc, 
-  doc, 
-  incrementArray 
+  doc 
 } from "firebase/firestore";
 import Link from "next/link";
-import Stnav from "../../components/Stnav";
 import NeuralBackground from "../../components/NeuralBackground";
 
 interface Post {
@@ -31,46 +29,69 @@ interface Post {
 }
 
 const PostCard = ({ post }: { post: Post }) => {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const mouseXSpring = useSpring(x);
+  const mouseYSpring = useSpring(y);
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["10deg", "-10deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-10deg", "10deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    x.set( (e.clientX - rect.left) / rect.width - 0.5);
+    y.set( (e.clientY - rect.top) / rect.height - 0.5);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="glass-card p-6 md:p-8 rounded-[2rem] hover:border-[#0096FF]/40 transition-all duration-300 relative group overflow-hidden"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+      className="glass-card p-8 rounded-[2.5rem] hover:border-[#0096FF]/40 transition-all duration-300 relative group overflow-hidden cursor-pointer bg-white/5 backdrop-blur-3xl"
     >
-      <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-        <FaUserGraduate size={80} />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0096FF]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+      
+      <div style={{ transform: "translateZ(50px)" }} className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+        <FaUserGraduate size={100} />
       </div>
 
-      <div className="flex items-center space-x-3 mb-4">
-        <div className="text-[10px] font-mono text-[#0096FF] border border-[#0096FF]/30 px-3 py-1 rounded-full uppercase tracking-widest">
-          {post.category}
-        </div>
-        {post.isOfficial && (
-          <div className="flex items-center space-x-1 text-[10px] font-mono text-green-500 bg-green-500/10 px-3 py-1 rounded-full uppercase tracking-widest">
-            <FaCheckCircle /> <span>OFFICIAL_BROADCAST</span>
+      <div style={{ transform: "translateZ(40px)" }} className="relative z-10">
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="text-[10px] font-mono text-[#0096FF] border border-[#0096FF]/30 px-4 py-1.5 rounded-full uppercase tracking-[0.3em] font-black bg-[#0096FF]/5">
+            {post.category}
           </div>
-        )}
-      </div>
-
-      <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-[#0096FF] transition-colors line-clamp-1 italic">
-        {post.title}
-      </h3>
-      <p className="text-gray-400 text-sm leading-relaxed mb-6 line-clamp-2 font-medium">
-        {post.content}
-      </p>
-
-      <div className="flex items-center justify-between pt-6 border-t border-white/5">
-        <div className="flex items-center space-x-4">
-           <div className="text-xs font-mono text-gray-500">
-             BY: <span className="text-white">{post.author.split('@')[0]}</span>
-           </div>
-           <div className="text-[10px] text-gray-600 font-mono">
-             {post.timestamp?.toDate().toLocaleDateString() || "SYNCING..."}
-           </div>
+          {post.isOfficial && (
+            <div className="flex items-center space-x-2 text-[10px] font-mono text-green-500 bg-green-500/10 px-4 py-1.5 rounded-full uppercase tracking-[0.3em] font-black border border-green-500/20">
+              <FaCheckCircle className="animate-pulse" /> <span>OFFICIAL_BROADCAST</span>
+            </div>
+          )}
         </div>
-        <div className="flex items-center space-x-2 text-[#0096FF]">
-            <FaFire className="animate-pulse" />
-            <span className="font-black text-lg">{post.votes || 0}</span>
+
+        <h3 className="text-3xl font-black text-white mb-4 group-hover:text-[#0096FF] transition-colors line-clamp-1 italic tracking-tighter">
+          {post.title}
+        </h3>
+        <p className="text-gray-400 text-sm leading-relaxed mb-8 line-clamp-2 font-medium">
+          {post.content}
+        </p>
+
+        <div className="flex items-center justify-between pt-8 border-t border-white/5">
+          <div className="flex items-center space-x-5">
+             <div className="text-xs font-mono text-gray-500 uppercase tracking-widest px-1">
+               ARCHITECT: <span className="text-white font-black">{post.author.split('@')[0]}</span>
+             </div>
+             <div className="text-[10px] text-gray-700 font-mono tracking-widest">
+               [{post.timestamp?.toDate().toLocaleDateString() || "SYNCING..."}]
+             </div>
+          </div>
+          <div className="flex items-center space-x-3 text-[#0096FF]">
+              <FaFire className="animate-pulse text-xl" />
+              <span className="font-black text-2xl tracking-tighter">{post.votes || 0}</span>
+          </div>
         </div>
       </div>
     </motion.div>
@@ -82,6 +103,8 @@ export default function StudentForum() {
   const [filter, setFilter] = useState("ALL");
   const [isPosting, setIsPosting] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [postError, setPostError] = useState("");
   const [newPost, setNewPost] = useState({ title: "", content: "", category: "GENERAL" });
 
   const startVoiceInput = () => {
@@ -104,40 +127,60 @@ export default function StudentForum() {
 
   useEffect(() => {
     const q = query(collection(db, "forum_posts"), orderBy("timestamp", "desc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const postData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
-      setPosts(postData);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const postData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
+        setPosts(postData);
+      },
+      (error) => {
+        console.error("Forum read error:", error);
+        // Silently handle read errors — posts will remain empty
+      }
+    );
     return () => unsubscribe();
   }, []);
 
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPost.title || !newPost.content) return;
+    if (!auth.currentUser) {
+      setPostError("You must be logged in to create a post.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setPostError("");
     
     try {
       await addDoc(collection(db, "forum_posts"), {
         ...newPost,
-        author: auth.currentUser?.email || "Anonymous",
+        author: auth.currentUser.email || "Anonymous",
         votes: 0,
         timestamp: serverTimestamp(),
         isOfficial: false
       });
       setIsPosting(false);
       setNewPost({ title: "", content: "", category: "GENERAL" });
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error("Forum write error:", err);
+      if (err?.code === "permission-denied" || err?.message?.includes("permissions")) {
+        setPostError("Firebase permissions error. The forum_posts collection needs write rules. Ask your admin to add: allow write: if request.auth != null;");
+      } else {
+        setPostError("Failed to publish post: " + (err?.message || "Unknown error"));
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const filteredPosts = filter === "ALL" ? posts : posts.filter(p => p.category === filter);
 
   return (
-    <div className="min-h-screen bg-black text-white flex">
-      <Stnav />
+    <div className="min-h-screen bg-black text-white">
       <NeuralBackground />
       
-      <main className="flex-1 p-6 md:p-12 relative z-10 overflow-y-auto mt-16 md:mt-0">
+      <main className="p-6 md:p-12 relative z-10 overflow-y-auto">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 space-y-6 md:space-y-0">
@@ -218,9 +261,14 @@ export default function StudentForum() {
                           {isListening ? <FaStop /> : <FaMicrophone />}
                         </button>
                       </div>
+                      {postError && (
+                        <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-sm text-red-400 font-mono">
+                          {postError}
+                        </div>
+                      )}
                       <div className="flex space-x-4">
-                        <button type="submit" className="flex-1 py-4 bg-[#0096FF] text-black font-black rounded-full hover:shadow-[0_0_20px_rgba(0,150,255,0.4)] transition-all">PUBLISH_STREAM</button>
-                        <button type="button" onClick={() => setIsPosting(false)} className="flex-1 py-4 glass-card font-black rounded-full hover:bg-red-500 transition-all">ABORT</button>
+                        <button type="submit" disabled={isSubmitting} className="flex-1 py-4 bg-[#0096FF] text-black font-black rounded-full hover:shadow-[0_0_20px_rgba(0,150,255,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed">{isSubmitting ? "PUBLISHING..." : "PUBLISH_STREAM"}</button>
+                        <button type="button" onClick={() => { setIsPosting(false); setPostError(""); }} className="flex-1 py-4 glass-card font-black rounded-full hover:bg-red-500 transition-all">ABORT</button>
                       </div>
                    </form>
                 </motion.div>

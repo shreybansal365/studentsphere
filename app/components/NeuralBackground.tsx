@@ -47,14 +47,15 @@ const NeuralBackground: React.FC = () => {
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      const gradient = ctx.createRadialGradient(
-        canvas.width / 2, canvas.height / 2, 0,
-        canvas.width / 2, canvas.height / 2, canvas.width
-      );
-      gradient.addColorStop(0, "rgba(0, 5, 10, 1)");
-      gradient.addColorStop(1, "rgba(0, 0, 0, 1)");
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Radial Gradient for depth as per professional reference
+        const gradient = ctx.createRadialGradient(
+          canvas.width / 2, canvas.height / 2, 0,
+          canvas.width / 2, canvas.height / 2, canvas.width
+        );
+        gradient.addColorStop(0, "rgba(0, 5, 10, 1)");
+        gradient.addColorStop(1, "rgba(0, 0, 0, 1)");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       particles.forEach((p, i) => {
         // Move
@@ -77,7 +78,7 @@ const NeuralBackground: React.FC = () => {
         // Draw particle
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(0, 150, 255, 0.4)";
+        ctx.fillStyle = "rgba(0, 150, 255, 0.6)";
         ctx.fill();
 
         // Draw lines
@@ -91,7 +92,7 @@ const NeuralBackground: React.FC = () => {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(0, 150, 255, ${0.15 * (1 - ldist / 150)})`;
+            ctx.strokeStyle = `rgba(0, 150, 255, ${0.25 * (1 - ldist / 150)})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
@@ -122,7 +123,7 @@ const NeuralBackground: React.FC = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 w-full h-full pointer-events-none z-0"
+      className="fixed inset-0 w-full h-full pointer-events-none z-[0]"
     />
   );
 };

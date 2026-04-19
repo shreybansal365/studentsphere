@@ -413,56 +413,114 @@ export const buildChatbotAcademicContext = (params: {
   assignments: AssignmentItem[];
   marks: MarksItem[];
   timetableSlots: TimetableSlot[];
+  reminders?: ReminderItem[];
+  forumPosts?: Array<{ title?: string; content?: string; author?: string; category?: string; votes?: number; isOfficial?: boolean }>;
+  events?: Array<{ eventTitle?: string; eventDescription?: string; eventDate?: string; user?: string }>;
+  notifications?: Array<{ title?: string; message?: string; instructor?: string }>;
+  resources?: Array<{ title?: string; category?: string; courseCode?: string; instructor?: string; sourceLink?: string }>;
 }) => {
+  const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  const today = new Date();
+  const todayDayIndex = today.getDay() === 0 ? 6 : today.getDay() - 1;
+
   const attendanceSummary =
     params.attendanceInsights.length > 0
       ? params.attendanceInsights
-          .slice(0, 6)
           .map(
             (insight) =>
-              `${insight.subject}: ${insight.percentage}% attendance, risk ${insight.status}, safe misses ${insight.classesSafeToMiss}`
+              `${insight.subject}: ${insight.percentage}% (${insight.attendedClasses}/${insight.totalClasses}), risk: ${insight.status}, safe misses: ${insight.classesSafeToMiss}, need for 75%: ${insight.classesNeededFor75}, if miss one more: ${insight.projectedAfterOneAbsence}%, trend: ${insight.recentTrend}`
           )
-          .join(" | ")
+          .join("\n  ")
       : "No attendance data available.";
 
   const assignmentSummary =
     params.assignments.length > 0
       ? params.assignments
-          .slice(0, 6)
           .map(
             (assignment) =>
-              `${assignment.title ?? "Assignment"} (${assignment.subject ?? "Subject"}) due ${assignment.deadline ?? "unknown"}`
+              `${assignment.title ?? "Assignment"} (${assignment.subject ?? "Subject"}) — deadline: ${assignment.deadline ?? "unknown"}, description: ${assignment.description ?? "none"}`
           )
-          .join(" | ")
+          .join("\n  ")
       : "No assignment data available.";
 
   const marksSummary =
     params.marks.length > 0
       ? params.marks
-          .slice(0, 6)
           .map(
             (mark) =>
-              `${mark.subject ?? "Subject"} ${mark.examType ?? "Exam"}: ${mark.score ?? "--"}`
+              `${mark.subject ?? "Subject"} — ${mark.examType ?? "Exam"}: ${mark.score ?? "--"}`
           )
-          .join(" | ")
+          .join("\n  ")
       : "No marks data available.";
 
-  const timetableSummary =
-    params.timetableSlots.length > 0
-      ? params.timetableSlots
-          .slice(0, 10)
-          .map(
-            (slot) =>
-              `day ${slot.day} ${slot.start}-${slot.end} ${slot.title} in ${slot.room} [${slot.source ?? "unknown"}]`
-          )
-          .join(" | ")
-      : "No timetable data available.";
+  let timetableSummary = "No timetable data available.";
+  if (params.timetableSlots.length > 0) {
+    const byDay = new Map<number, TimetableSlot[]>();
+    params.timetableSlots.forEach((slot) => {
+      const existing = byDay.get(slot.day) ?? [];
+      existing.push(slot);
+      byDay.set(slot.day, existing);
+    });
+    timetableSummary = Array.from(byDay.entries())
+      .sort(([a], [b]) => a - b)
+      .map(([day, slots]) => {
+        const isToday = day === todayDayIndex;
+        const slotList = slots
+          .sort((a, b) => a.start.localeCompare(b.start))
+          .map((s) => `    ${s.start}-${s.end} ${s.title} in ${s.room}`)
+          .join("\n");
+        return `  ${dayNames[day]}${isToday ? " (TODAY)" : ""}:\n${slotList}`;
+      })
+      .join("\n");
+  }
+
+  const todaysClasses = params.timetableSlots
+    .filter((s) => s.day === todayDayIndex)
+    .sort((a, b) => a.start.localeCompare(b.start));
+  const todaySummary =
+    todaysClasses.length > 0
+      ? todaysClasses.map((s) => `${s.start}-${s.end}: ${s.title} in ${s.room}`).join(", ")
+      : "No classes today.";
+
+  const reminderSummary =
+    params.reminders && params.reminders.length > 0
+      ? params.reminders.map((r) => `[${r.severity.toUpperCase()}] ${r.title}: ${r.detail}`).join("\n  ")
+      : "No active reminders.";
+
+  const forumSummary =
+    params.forumPosts && params.forumPosts.length > 0
+      ? params.forumPosts
+          .map((p) => `"${p.title ?? "Untitled"}" by ${p.author?.split("@")[0] ?? "anon"} [${p.category ?? "general"}] ${p.votes ?? 0} votes${p.isOfficial ? " (OFFICIAL)" : ""}`)
+          .join("\n  ")
+      : "No forum posts.";
+
+  const eventsSummary =
+    params.events && params.events.length > 0
+      ? params.events.map((e) => `${e.eventTitle ?? "Event"} on ${e.eventDate ?? "TBD"} by ${e.user ?? "unknown"}: ${e.eventDescription ?? ""}`).join("\n  ")
+      : "No events listed.";
+
+  const notificationsSummary =
+    params.notifications && params.notifications.length > 0
+      ? params.notifications.map((n) => `${n.title ?? "Notification"} from ${n.instructor ?? "faculty"}: ${n.message ?? ""}`).join("\n  ")
+      : "No notifications.";
+
+  const resourcesSummary =
+    params.resources && params.resources.length > 0
+      ? params.resources.map((r) => `${r.title ?? "Resource"} [${r.category ?? "general"}] for ${r.courseCode ?? "course"} by ${r.instructor ?? "unknown"}`).join("\n  ")
+      : "No study resources.";
 
   return [
     params.profileSummary,
-    `Attendance Summary: ${attendanceSummary}`,
-    `Assignments Summary: ${assignmentSummary}`,
-    `Marks Summary: ${marksSummary}`,
-    `Timetable Summary: ${timetableSummary}`,
+    `\nToday is ${today.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}, ${today.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}.`,
+    `\nToday's Classes: ${todaySummary}`,
+    `\nAttendance (all subjects):\n  ${attendanceSummary}`,
+    `\nAssignments:\n  ${assignmentSummary}`,
+    `\nMarks:\n  ${marksSummary}`,
+    `\nWeekly Timetable:\n${timetableSummary}`,
+    `\nActive Reminders:\n  ${reminderSummary}`,
+    `\nForum Discussions:\n  ${forumSummary}`,
+    `\nCampus Events:\n  ${eventsSummary}`,
+    `\nNotifications:\n  ${notificationsSummary}`,
+    `\nStudy Resources:\n  ${resourcesSummary}`,
   ].join("\n");
 };

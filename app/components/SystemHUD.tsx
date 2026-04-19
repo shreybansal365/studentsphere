@@ -23,7 +23,7 @@ const SystemHUD: React.FC = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-[100] p-6 hidden md:block">
+    <div className="fixed inset-0 pointer-events-none z-[5] p-6 hidden md:block">
       {/* Top Left: System Context */}
       <div className="absolute top-10 left-10">
         <motion.div 
@@ -42,17 +42,25 @@ const SystemHUD: React.FC = () => {
       </div>
 
       {/* Top Right: Real-time Telemetry */}
-      <div className="absolute top-10 right-10 text-right">
+      <div className="absolute top-10 right-10">
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="font-mono text-[10px] text-[#0096FF]/60 space-y-1"
+          className="font-mono text-[10px] text-[#0096FF]/60 grid grid-cols-[1fr_auto] gap-x-4 gap-y-1.5"
         >
-          <p>TIME: {time}</p>
-          <p>INFRA_LATENCY: {metrics.lat}MS</p>
-          <p>GRID_LOAD: {metrics.cpu}%</p>
-          <p className="text-[#0096FF]/80 font-black italic">MASTER_ARCHITECT: SHREY BANSAL</p>
-          <p className="text-white/20 text-[8px] uppercase tracking-tighter italic">Source_Integrity_Verified</p>
+          <span className="text-left opacity-50 uppercase tracking-widest">Time</span>
+          <span className="text-right tabular-nums">{time}</span>
+
+          <span className="text-left opacity-50 uppercase tracking-widest">Infra_Latency</span>
+          <span className="text-right tabular-nums">{metrics.lat}MS</span>
+
+          <span className="text-left opacity-50 uppercase tracking-widest">Grid_Load</span>
+          <span className="text-right tabular-nums">{metrics.cpu}%</span>
+
+          <div className="col-span-2 pt-2 mt-2 border-t border-[#0096FF]/10 text-right">
+            <p className="text-[#0096FF]/80 font-black italic tracking-tighter">MASTER_ARCHITECT: SHREY BANSAL</p>
+            <p className="text-white/20 text-[8px] uppercase tracking-tighter italic">Source_Integrity_Verified</p>
+          </div>
         </motion.div>
       </div>
 
@@ -65,6 +73,27 @@ const SystemHUD: React.FC = () => {
         >
           Neural_Mesh_Interactive_Logic_Enabled
         </motion.div>
+      </div>
+
+      {/* Bottom Center: Global Campus Pulse Ticker */}
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 w-1/3 overflow-hidden border-x border-white/5 px-10">
+         <motion.div 
+            animate={{ x: [0, -1000] }}
+            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+            className="flex whitespace-nowrap space-x-12 font-mono text-[9px] text-[#0096FF]/40 uppercase tracking-[0.3em]"
+         >
+            <span>[ SYSTEM_STATUS: MESS_HALL_LOAD_AT_42% ]</span>
+            <span>[ ALERT: ZENITH_HACKATHON_REGISTRATION_CLOSING_IN_02H ]</span>
+            <span>[ BROADCAST: FACULTY_SYNC_COMPLETE_WITH_DEPT_BLOCK_A ]</span>
+            <span>[ LIVE: RESEARCH_SYMPOSIUM_STARTING_IN_CENTRAL_AUDITORIUM ]</span>
+            <span>[ NEWS: MUJ_SPHERE_V1.1_STABILIZED_BY_ARCHITECT ]</span>
+            {/* Duplicate for seamless infinite loop */}
+            <span>[ SYSTEM_STATUS: MESS_HALL_LOAD_AT_42% ]</span>
+            <span>[ ALERT: ZENITH_HACKATHON_REGISTRATION_CLOSING_IN_02H ]</span>
+            <span>[ BROADCAST: FACULTY_SYNC_COMPLETE_WITH_DEPT_BLOCK_A ]</span>
+            <span>[ LIVE: RESEARCH_SYMPOSIUM_STARTING_IN_CENTRAL_AUDITORIUM ]</span>
+            <span>[ NEWS: MUJ_SPHERE_V1.1_STABILIZED_BY_ARCHITECT ]</span>
+         </motion.div>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import Footer from "./components/Footer";
 import TerminalBoot from "./components/TerminalBoot";
 import SystemHUD from "./components/SystemHUD";
 import CustomCursor from "./components/CustomCursor";
+import NeuralBackground from "./components/NeuralBackground";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,17 +33,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
         <TerminalBoot />
+        <NeuralBackground />
         <SystemHUD />
         <CustomCursor />
         <div className="noise-overlay" />
-        {children}
-        <Footer/>
+        <div className="relative z-10">
+          {children}
+          <Footer/>
+        </div>
       </body>
     </html>
   );

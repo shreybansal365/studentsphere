@@ -6,7 +6,7 @@ import Features from './components/Features';
 
 const Home = () => {
   return (
-    <div className="bg-black min-h-screen">
+    <div className="bg-transparent min-h-screen">
       <Navbar/>
       <Hero/> 
       <Features />

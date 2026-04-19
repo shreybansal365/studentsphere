@@ -4,6 +4,7 @@ import {
   getDoc,
   getDocs,
   getFirestore,
+  limit,
   orderBy,
   query,
   where,
@@ -25,6 +26,7 @@ interface StudentProfile {
   email?: string;
   batch?: string;
   branch?: string;
+  rollNo?: string;
   slcmAttendanceHTML?: SubjectAttendance[];
   slcmAttendanceData?: SubjectAttendance[];
   slcmTimetableHTML?: Array<{
@@ -34,6 +36,43 @@ interface StudentProfile {
     room?: string;
   }>;
   slcmScrapeTime?: string;
+}
+
+export interface ForumPost {
+  id: string;
+  title?: string;
+  content?: string;
+  author?: string;
+  category?: string;
+  votes?: number;
+  isOfficial?: boolean;
+  timestamp?: any;
+}
+
+export interface EventItem {
+  id: string;
+  eventTitle?: string;
+  eventDescription?: string;
+  eventDate?: string;
+  user?: string;
+}
+
+export interface NotificationItem {
+  id: string;
+  title?: string;
+  message?: string;
+  instructor?: string;
+}
+
+export interface ResourceItem {
+  id: string;
+  title?: string;
+  category?: string;
+  sourceLink?: string;
+  instructor?: string;
+  courseCode?: string;
+  batch?: string;
+  date?: string;
 }
 
 const dayMap: Record<string, number> = {
@@ -158,13 +197,26 @@ export const fetchStudentAcademicBundle = async (uid: string) => {
   const batch = profile.batch ?? "2026";
   const branch = profile.branch ?? "";
 
-  const [assignmentsSnapshot, marksSnapshot, attendanceSnapshot, facultyTimetableSnapshot] =
-    await Promise.all([
-      getDocs(query(collection(db, "assignments"), where("batch", "==", batch))),
-      getDocs(query(collection(db, "marks"), orderBy("timestamp", "desc"))),
-      getDocs(query(collection(db, "attendance"), orderBy("timestamp", "desc"))),
-      getDoc(doc(db, "timetables", buildTimetableDocId(batch, branch))),
-    ]);
+  // Fetch all core academic data + extended platform data in parallel
+  const [
+    assignmentsSnapshot,
+    marksSnapshot,
+    attendanceSnapshot,
+    facultyTimetableSnapshot,
+    forumSnapshot,
+    eventsSnapshot,
+    notificationsSnapshot,
+    resourcesSnapshot,
+  ] = await Promise.all([
+    getDocs(query(collection(db, "assignments"), where("batch", "==", batch))),
+    getDocs(query(collection(db, "marks"), orderBy("timestamp", "desc"))),
+    getDocs(query(collection(db, "attendance"), orderBy("timestamp", "desc"))),
+    getDoc(doc(db, "timetables", buildTimetableDocId(batch, branch))),
+    getDocs(query(collection(db, "forum_posts"), orderBy("timestamp", "desc"), limit(20))).catch(() => null),
+    getDocs(query(collection(db, "events"))).catch(() => null),
+    getDocs(query(collection(db, "notifications"))).catch(() => null),
+    getDocs(query(collection(db, "resources"))).catch(() => null),
+  ]);
 
   const assignments: AssignmentItem[] = assignmentsSnapshot.docs.map((assignmentDoc) => ({
     id: assignmentDoc.id,
@@ -198,6 +250,23 @@ export const fetchStudentAcademicBundle = async (uid: string) => {
     }
   });
 
+  // Parse extended platform data
+  const forumPosts: ForumPost[] = forumSnapshot
+    ? forumSnapshot.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<ForumPost, "id">) }))
+    : [];
+
+  const events: EventItem[] = eventsSnapshot
+    ? eventsSnapshot.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<EventItem, "id">) }))
+    : [];
+
+  const notifications: NotificationItem[] = notificationsSnapshot
+    ? notificationsSnapshot.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<NotificationItem, "id">) }))
+    : [];
+
+  const resources: ResourceItem[] = resourcesSnapshot
+    ? resourcesSnapshot.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<ResourceItem, "id">) }))
+    : [];
+
   const slcmAttendance =
     (Array.isArray(profile.slcmAttendanceHTML) && profile.slcmAttendanceHTML) ||
     (Array.isArray(profile.slcmAttendanceData) && profile.slcmAttendanceData) ||
@@ -218,5 +287,9 @@ export const fetchStudentAcademicBundle = async (uid: string) => {
     timetableSource: slcmTimetable.length > 0 ? "slcm" : facultyTimetable.length > 0 ? "faculty" : "none",
     facultyTimetable,
     slcmTimetable,
+    forumPosts,
+    events,
+    notifications,
+    resources,
   };
 };

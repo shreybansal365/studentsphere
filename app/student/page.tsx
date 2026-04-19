@@ -5,20 +5,25 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import { app } from '@/lib/firebase';
 import { motion } from "framer-motion";
-import { FaCalendarAlt, FaRobot, FaTasks, FaGraduationCap, FaChartLine, FaBell, FaComments, FaSyncAlt } from 'react-icons/fa';
+import { FaCalendarAlt, FaRobot, FaTasks, FaGraduationCap, FaChartLine, FaBell, FaComments, FaSyncAlt, FaClock, FaExclamationTriangle, FaArrowRight } from 'react-icons/fa';
 import Link from 'next/link';
-import NeuralBackground from "../components/NeuralBackground";
 import AttendanceCombat from "../components/AttendanceCombat";
 import GPAMatrix from "../components/GPAMatrix";
+import SurvivalistPanel from "../components/SurvivalistPanel";
+import SynapseMesh from "../components/SynapseMesh";
 import DiagnosticOnboarding from "../components/DiagnosticOnboarding";
 import { fetchStudentAcademicBundle } from "@/lib/student-data";
-import { buildAttendanceInsights } from "@/lib/academic";
+import { buildAttendanceInsights, buildLiveReminders, type AttendanceInsight, type ReminderItem, type TimetableSlot } from "@/lib/academic";
 
 const Page: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [attendanceStats, setAttendanceStats] = useState({ attended: 0, total: 0 });
   const [marks, setMarks] = useState<any[]>([]);
+  const [attendanceInsights, setAttendanceInsights] = useState<AttendanceInsight[]>([]);
+  const [timetableSlots, setTimetableSlots] = useState<TimetableSlot[]>([]);
+  const [reminders, setReminders] = useState<ReminderItem[]>([]);
+  const [assignments, setAssignments] = useState<any[]>([]);
   
   // SLCM Vault States
   const [showSyncModal, setShowSyncModal] = useState(false);
@@ -44,6 +49,18 @@ const Page: React.FC = () => {
           const attended = insights.reduce((acc, ins) => acc + ins.attendedClasses, 0);
           setAttendanceStats({ attended, total });
           setMarks(bundle.marks);
+          setAttendanceInsights(insights);
+          setTimetableSlots(bundle.timetableSlots);
+          setAssignments(bundle.assignments);
+
+          // Build live reminders
+          const liveReminders = buildLiveReminders({
+            attendanceInsights: insights,
+            assignments: bundle.assignments,
+            marks: bundle.marks,
+            timetableSlots: bundle.timetableSlots,
+          });
+          setReminders(liveReminders);
         }
       }
       setLoading(false);
@@ -100,6 +117,33 @@ const Page: React.FC = () => {
     }
   };
 
+  // Compute today's classes
+  const now = new Date();
+  const todayDayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1;
+  const todaysClasses = timetableSlots
+    .filter(s => s.day === todayDayIndex)
+    .sort((a, b) => a.start.localeCompare(b.start));
+
+  // Find next class today
+  const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  const nextClass = todaysClasses.find(c => c.start > currentTime);
+
+  // Find next upcoming assignment deadline
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const upcomingAssignments = assignments
+    .filter(a => {
+      if (!a.deadline) return false;
+      const d = new Date(`${a.deadline}T00:00:00`);
+      return d >= today;
+    })
+    .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
+
+  // Overall attendance
+  const overallAttendance = attendanceStats.total > 0
+    ? ((attendanceStats.attended / attendanceStats.total) * 100).toFixed(1)
+    : "0.0";
+
   const dashboardModules = [
     { name: "Attendance", path: "/student/attendance", icon: <FaChartLine />, color: "text-purple-500", desc: "Live Analytics" },
     { name: "Timetable", path: "/student/timetable", icon: <FaCalendarAlt />, color: "text-blue-500", desc: "Logic Schedules" },
@@ -119,35 +163,205 @@ const Page: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-6 sm:px-12 relative overflow-hidden">
+    <div className="min-h-screen bg-transparent text-white p-6 sm:px-12 relative overflow-hidden">
       <DiagnosticOnboarding />
-      <NeuralBackground />
       
       <div className="max-w-7xl mx-auto flex flex-col items-center relative z-10">
         
-        {/* Welcome Section */}
+        {/* User Session Identity Node */}
         <motion.div 
           className="w-full text-left mb-16 flex flex-col md:flex-row md:items-end justify-between border-b border-white/5 pb-10"
           initial={{ opacity: 0, x: -20 }} 
           animate={{ opacity: 1, x: 0 }} 
         >
-          <div>
-            <p className="text-[#0096FF] font-mono text-[10px] tracking-[0.4em] mb-4 uppercase">User_Session_Active</p>
-            <h1 className="text-5xl md:text-8xl font-black text-white tracking-tighter leading-none mb-2">
-                HELLO, <span className="text-[#0096FF] italic">{user?.name?.split(' ')[0] || "STUDENT"}</span>
-            </h1>
+          <div className="space-y-4">
+            <div className="flex items-center space-x-3">
+                <div className="h-1.5 w-1.5 bg-green-500 rounded-full animate-pulse" />
+                <p className="text-[#0096FF] font-mono text-[9px] tracking-[0.6em] uppercase">SYSTEM_LINK: ACTIVE_SESSION</p>
+            </div>
+            <div className="relative group">
+                <div className="absolute -left-4 top-0 bottom-0 w-px bg-gradient-to-b from-[#0096FF] to-transparent opacity-40" />
+                <div className="flex items-baseline space-x-6">
+                    <p className="font-mono text-[10px] text-gray-600 uppercase tracking-widest">[ SESSION_ID: 0x{user?.rollNo?.slice(-3) || "848"} ]</p>
+                    <h1 className="text-4xl md:text-7xl font-black text-white tracking-tighter leading-none flex items-center">
+                        <span className="text-gray-500 opacity-20 mr-4 font-mono text-2xl group-hover:opacity-100 transition-opacity">&gt;</span>
+                        ACCESS_GRANTED: <span className="text-[#0096FF] italic ml-4">{user?.name?.toUpperCase() || "STUDENT_CADET"}</span>
+                    </h1>
+                </div>
+            </div>
           </div>
-          <div className="mt-8 md:mt-0">
-             <button onClick={() => setShowSyncModal(true)} className="px-8 py-4 glass-card rounded-full font-black text-xs hover:border-[#0096FF]/50 transition-all flex items-center group">
-                <FaSyncAlt className="mr-3 group-hover:rotate-180 transition-transform duration-500" /> SYNC_SLCM_NODES
+          <div className="mt-10 md:mt-0 flex flex-col items-end space-y-4">
+             <div className="flex space-x-6 mb-2">
+                 <div className="text-right">
+                    <p className="text-[8px] font-mono text-gray-700 uppercase tracking-widest">ENCRYPTION</p>
+                    <p className="text-[10px] font-mono text-green-500 font-black">RSA_4096_ON</p>
+                 </div>
+                 <div className="text-right border-l border-white/10 pl-6">
+                    <p className="text-[8px] font-mono text-gray-700 uppercase tracking-widest">NETWORK</p>
+                    <p className="text-[10px] font-mono text-white font-black italic underline decoration-[#0096FF]">MUJ_GRID</p>
+                 </div>
+             </div>
+             <button onClick={() => setShowSyncModal(true)} className="px-10 py-4 glass-card rounded-full font-black text-[10px] tracking-[0.4em] hover:bg-[#0096FF] hover:text-black transition-all flex items-center group uppercase overflow-hidden relative">
+                <span className="relative z-10 flex items-center">
+                    <FaSyncAlt className="mr-3 group-hover:rotate-180 transition-transform duration-700" /> SYNC_SLCM_NODES
+                </span>
+                <motion.div 
+                    animate={{ x: ["-100%", "200%"] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12"
+                />
              </button>
           </div>
         </motion.div>
+
+        {/* Quick Stats Bar */}
+        <motion.div
+          className="w-full mb-8 grid grid-cols-1 md:grid-cols-3 gap-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          {/* Next Class */}
+          <div className="glass-card p-5 rounded-2xl flex items-center space-x-4 hover:border-[#0096FF]/30 transition-all">
+            <div className="p-3 bg-[#0096FF]/10 rounded-xl">
+              <FaClock className="text-[#0096FF] text-lg" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[9px] font-mono text-gray-500 uppercase tracking-widest">NEXT_CLASS</p>
+              {nextClass ? (
+                <>
+                  <p className="text-sm font-black text-white truncate">{nextClass.title}</p>
+                  <p className="text-xs text-gray-400">{nextClass.start} • {nextClass.room}</p>
+                </>
+              ) : (
+                <p className="text-sm font-bold text-gray-500">{todaysClasses.length > 0 ? "All done for today" : "No classes today"}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Upcoming Deadline */}
+          <div className="glass-card p-5 rounded-2xl flex items-center space-x-4 hover:border-amber-500/30 transition-all">
+            <div className="p-3 bg-amber-500/10 rounded-xl">
+              <FaTasks className="text-amber-400 text-lg" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[9px] font-mono text-gray-500 uppercase tracking-widest">NEXT_DEADLINE</p>
+              {upcomingAssignments[0] ? (
+                <>
+                  <p className="text-sm font-black text-white truncate">{upcomingAssignments[0].title}</p>
+                  <p className="text-xs text-gray-400">{upcomingAssignments[0].deadline} • {upcomingAssignments[0].subject}</p>
+                </>
+              ) : (
+                <p className="text-sm font-bold text-gray-500">No upcoming deadlines</p>
+              )}
+            </div>
+          </div>
+
+          {/* Overall Attendance */}
+          <div className="glass-card p-5 rounded-2xl flex items-center space-x-4 hover:border-green-500/30 transition-all">
+            <div className="p-3 bg-green-500/10 rounded-xl">
+              <FaChartLine className="text-green-400 text-lg" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[9px] font-mono text-gray-500 uppercase tracking-widest">OVERALL_ATTENDANCE</p>
+              <p className={`text-2xl font-black ${parseFloat(overallAttendance) >= 75 ? "text-green-400" : parseFloat(overallAttendance) >= 70 ? "text-amber-400" : "text-red-400"}`}>
+                {overallAttendance}%
+              </p>
+              <p className="text-xs text-gray-400">{attendanceStats.attended}/{attendanceStats.total} classes</p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Today's Schedule */}
+        {todaysClasses.length > 0 && (
+          <motion.div
+            className="w-full mb-8 glass-card p-6 rounded-[2rem] hover:border-[#0096FF]/20 transition-all"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <FaCalendarAlt className="text-[#0096FF]" />
+                <p className="text-[10px] font-mono text-[#0096FF] tracking-[0.3em] uppercase">TODAY&apos;S_SCHEDULE</p>
+              </div>
+              <Link href="/student/timetable" className="text-[10px] font-mono text-gray-500 hover:text-[#0096FF] flex items-center transition">
+                VIEW_FULL <FaArrowRight className="ml-1 text-[8px]" />
+              </Link>
+            </div>
+            <div className="flex overflow-x-auto space-x-3 pb-2">
+              {todaysClasses.map((cls, i) => {
+                const isPast = cls.end < currentTime;
+                const isCurrent = cls.start <= currentTime && cls.end >= currentTime;
+                return (
+                  <div
+                    key={i}
+                    className={`flex-shrink-0 px-5 py-3 rounded-xl border text-sm transition-all ${
+                      isCurrent
+                        ? "bg-[#0096FF]/15 border-[#0096FF]/40 text-white shadow-[0_0_15px_rgba(0,150,255,0.2)]"
+                        : isPast
+                          ? "bg-white/3 border-white/5 text-gray-500"
+                          : "bg-white/5 border-white/10 text-gray-300"
+                    }`}
+                  >
+                    <p className="font-black text-xs">{cls.start} - {cls.end}</p>
+                    <p className={`font-bold mt-1 ${isCurrent ? "text-[#0096FF]" : ""}`}>{cls.title}</p>
+                    <p className="text-[10px] text-gray-500 mt-0.5">{cls.room}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Live Reminders Strip */}
+        {reminders.length > 0 && (
+          <motion.div
+            className="w-full mb-8 glass-card p-5 rounded-[2rem] border-l-4 border-l-amber-500/60"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-3">
+                <FaExclamationTriangle className="text-amber-400" />
+                <p className="text-[10px] font-mono text-amber-400 tracking-[0.3em] uppercase">LIVE_REMINDERS ({reminders.length})</p>
+              </div>
+              <Link href="/student/reminders" className="text-[10px] font-mono text-gray-500 hover:text-amber-400 flex items-center transition">
+                VIEW_ALL <FaArrowRight className="ml-1 text-[8px]" />
+              </Link>
+            </div>
+            <div className="space-y-2">
+              {reminders.slice(0, 3).map((reminder) => (
+                <div
+                  key={reminder.id}
+                  className={`flex items-start space-x-3 px-4 py-2 rounded-xl text-sm ${
+                    reminder.severity === "high" ? "bg-red-500/10 text-red-300" :
+                    reminder.severity === "medium" ? "bg-amber-500/10 text-amber-300" :
+                    "bg-green-500/10 text-green-300"
+                  }`}
+                >
+                  <FaBell className="text-xs mt-1 flex-shrink-0" />
+                  <div>
+                    <span className="font-bold">{reminder.title}</span>
+                    <span className="text-gray-400 ml-2 text-xs">{reminder.detail}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* Intelligence Grid: Combat Strategist & GPA Matrix */}
         <div className="w-full mb-12 grid grid-cols-1 lg:grid-cols-2 gap-6">
             <AttendanceCombat currentAttendance={0} totalClasses={attendanceStats.total} attendedClasses={attendanceStats.attended} />
             <GPAMatrix marks={marks} />
+        </div>
+
+        {/* Neural Analysis Deck: Survivalist & Synapse Mesh */}
+        <div className="w-full mb-12 grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <SurvivalistPanel attendanceInsights={attendanceInsights} />
+            <SynapseMesh attendanceInsights={attendanceInsights} />
         </div>
 
         {/* Dashboard Grid */}
