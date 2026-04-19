@@ -195,7 +195,7 @@ const ProfilePage: React.FC = () => {
                 </div>
                 <div>
                    <p className="text-[10px] font-black italic uppercase">System_Architect_Verified</p>
-                   <p className="text-[8px] font-mono text-gray-500 uppercase">Handcrafted by Shrey Bansal for Muj_Studentsphere</p>
+                   <p className="text-[8px] font-mono text-gray-500 uppercase">Handcrafted by Shrey Bansal for StudentSphere</p>
                 </div>
              </div>
           </div>
