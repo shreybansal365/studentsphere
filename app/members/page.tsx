@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { FaLinkedin, FaGithub, FaEnvelope, FaCode, FaTerminal, FaFingerprint } from "react-icons/fa";
+import { Zap, Globe } from "lucide-react";
 import Navbar from "../components/Navbar";
 
 export default function DevelopersPage() {
