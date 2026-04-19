@@ -9,7 +9,7 @@
   5. The "Key Decisions" section is the MOST IMPORTANT part — always explain WHY
 -->
 
-> Last Updated: 2026-04-11 | Author: Shrey Bansal
+> Last Updated: 2026-04-19 | Author: Shrey Bansal
 
 ---
 
@@ -17,7 +17,7 @@
 
 **StudentSphere** is a full-stack academic management platform for **Manipal University Jaipur (MUJ)**. It provides students and faculty with a single unified portal for timetables, attendance, assignments, marks, AI chatbot assistance, and SLCM data syncing.
 
-**Live Production URL:** https://studentsphere-mu.vercel.app  
+**Live Production URL:** https://studentsphere-portal.vercel.app  
 **Deployment Platform:** Vercel (Hobby Plan)  
 **Repository:** Local Git on macOS at `/Users/shreybansal/Pictures/Agile Project/studentsphere`
 
@@ -196,7 +196,7 @@ Scrapes the MUJ SLCM portal (`mujslcm.jaipur.manipal.edu`) to extract real timet
 # Preview deployment (generates random URL)
 npx vercel
 
-# Production deployment (updates studentsphere-mu.vercel.app)
+# Production deployment (updates studentsphere-portal.vercel.app)
 npx vercel --prod
 ```
 
@@ -205,7 +205,7 @@ Firebase Auth requires all deployment domains to be whitelisted:
 - `localhost` (default)
 - `studentsphere1234.firebaseapp.com` (default)
 - `studentsphere1234.web.app` (default)
-- `studentsphere-mu.vercel.app` (manually added)
+- `studentsphere-portal.vercel.app` (manually added)
 
 ---
 
@@ -290,7 +290,7 @@ As of April 11, 2026, the database has been moved from "Test Mode" to **Producti
 | Faculty Assignment Management | ✅ Complete | CRUD workflow with edit/delete, deadline filters, and faculty subject shortcuts |
 | Faculty Marks Upload | ✅ Complete | Validated grading sheet, summary stats, batch filters, and recent upload history |
 | Discussion Forum (both sides) | ❌ Not Started | — |
-| Vercel Production Deployment | ✅ Complete | studentsphere-mu.vercel.app |
+| Vercel Production Deployment | ✅ Complete | studentsphere-portal.vercel.app |
 | Student Navbar (Stnav) | ✅ Complete | Sidebar with all module links |
 | Faculty Navbar (Adnav) | ✅ Complete | Sidebar with all module links |
 
