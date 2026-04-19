@@ -1,16 +1,16 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/shreybansal365/StudentSphere-Autonomous-Identity-Oracle/main/public/muj.svg" alt="StudentSphere Logo" width="140" height="140" />
+  <img src="./public/muj.svg" alt="StudentSphere Logo" width="140" height="140" />
 
-  <h1 align="center">STUDENTSPHERE</h1>
+  <h1 align="center">StudentSphere</h1>
   
   <p align="center">
-    <strong>The Autonomous, Zero-Trust Campus Nervous System.</strong><br>
-    <em>An elite integration of decentralized identity, edge-scraping, and context-aware intelligence.</em>
+    <strong>A next-generation, context-aware campus management platform.</strong><br>
+    <em>Built with a Zero-Trust architecture, edge-scraping capabilities, and AI-driven insights.</em>
   </p>
 
   <p align="center">
     <a href="https://studentsphere1234.vercel.app/" target="_blank">
-      <img src="https://img.shields.io/badge/🚀_Explore_The_Deployment-000000?style=for-the-badge&logoColor=white" alt="Deployment" />
+      <img src="https://img.shields.io/badge/View_Platform-000000?style=for-the-badge&logoColor=white" alt="Deployment" />
     </a>
   </p>
 
@@ -19,75 +19,95 @@
     <img src="https://img.shields.io/badge/Firebase-v11-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase" />
     <img src="https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
     <img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion" />
-    <img src="https://img.shields.io/badge/Groq-AI_Core-f3f4f6?style=for-the-badge&logo=ai&logoColor=black" alt="Groq LLaMA 3.3" />
+    <img src="https://img.shields.io/badge/Groq-AI-f3f4f6?style=for-the-badge&logo=ai&logoColor=black" alt="Groq LLaMA 3.3" />
     <img src="https://img.shields.io/badge/Puppeteer-Edge_Scraping-40B5A4?style=for-the-badge&logo=puppeteer&logoColor=white" alt="Edge Scraping" />
   </p>
 </div>
 
 <br />
 
-> **“Traditional academic portals are fragmented and inefficient. StudentSphere is an aerospace-grade, context-aware intelligence matrix that rewrites how institutions operate.”**
+> **Traditional academic portals are fragmented and static. StudentSphere bridges the gap between institutional data and actionable intelligence, providing a unified, context-aware experience for both students and faculty.**
 
 ---
 
-## ⚡ The Immaculate Tier: Core Innovations
+## 🚀 Core Capabilities
 
-### 👁️ Autonomous Faculty Oracle
-StudentSphere operates a server-side **Oracle API** (`/api/verify-faculty`) that autonomously scrapes the official university directory to validate faculty credentials in real-time. 
-* **Neural Normalization:** Automatically reconciles names and fuzzy-matches titles (stripping "Dr.", "Prof.", etc.).
-* **Instant Rejection:** Imposters are locked out at the edge layer, ensuring an uncompromised faculty grid.
+### 👁️ Autonomous Faculty Authorization
+StudentSphere incorporates a server-side verification layer (`/api/verify-faculty`) that autonomously parses the official university directory to validate faculty credentials. 
+* **Data Normalization:** Automatically reconciles names and standardizes titles to ensure consistent matching.
+* **Proactive Security:** Unverified access attempts are rejected at the edge, maintaining the integrity of the faculty portal.
 
-### 🛡️ Template-Enforced Zero-Trust Data Matrix
-* **Surgical Validation:** Batch-specific constraints (14-digit alphanumeric for 2027; 10-digit numeric for 2028+).
-* **Role-Based Access Control:** All database interactions are gated by strict Firestore RBAC policies.
+### 🛡️ Zero-Trust Architecture
+Data security and access controls are strictly enforced at the database level.
+* **Input Validation:** Batch-specific constraints (e.g., locking to specific numeric or alphanumeric formats based on enrollment year).
+* **Firestore RBAC:** Role-Based Access Control policies ensure users can only access and modify their authorized data scopes.
 
 ### 🧠 SphereAI: Context-Aware Intelligence
-Beyond standard LLM wrappers, SphereAI is fed directly with real-time academic telemetry. 
-* **Proactive Interventions:** Calculates attendance shortages and suggests "Safe-Miss" buffer zones.
-* **Low-Latency Logic:** Powered by Groq's Llama 3.3 for instantaneous strategic output.
+Integrating with real-time academic telemetry, SphereAI provides proactive insights rather than simple LLM responses.
+* **Predictive Analytics:** Accurately calculates attendance trajectories and suggests optimal buffer zones.
+* **Low-Latency Logic:** Powered by Groq's LLaMA 3.3, delivering near-instantaneous strategic recommendations.
 
-### ⚡ Ghost Protocol: Edge SLCM Synchronization
-An asynchronous data extraction engine using `@sparticuz/chromium` to bypass serverless constraints, pulling raw university data in under 3 seconds.
+### ⚡ Edge SLCM Synchronization
+An asynchronous data extraction engine using `@sparticuz/chromium`. Designed to operate within serverless constraints, it securely and rapidly pulls raw attendance and timetable data from legacy institutional portals.
 
 ---
 
-## 🛠️ The Technology Engine
+## 🛠️ Technical Architecture
 
-| Layer | Engine | Purpose |
+| Component | Technology | Purpose |
 | :--- | :--- | :--- |
-| **Core** | `Next.js 15` | App Router paradigm for nested layouts and streaming. |
-| **Identity** | `Firebase Auth` | Institutional Outlook SSO and Zero-Trust gatekeeping. |
-| **Data** | `Firestore` | NoSQL document storage for secure, scalable node profiles. |
-| **Scraping**| `Puppeteer-Core` | Headless browser mechanics for SLCM data synthesis. |
-| **Physics** | `Framer Motion` | Fluid UI physics bridging React state and DOM animations. |
-| **Neural** | `Groq Cloud` | Low-latency Llama 3.3 API powering SphereAI logic. |
+| **Framework** | `Next.js 15` | App Router paradigm for nested layouts, secure API routes, and optimized streaming. |
+| **Authentication**| `Firebase Auth` | Institutional SSO integration with strict verification protocols. |
+| **Database** | `Firestore` | Scalable NoSQL document storage for complex, hierarchical user profiles. |
+| **Scraping Engine**| `Puppeteer-Core` | Headless Chromium mechanics tailored for Vercel Serverless execution. |
+| **UI & Animation**| `Framer Motion` | Hardware-accelerated transitions that bridge React state with fluid DOM elements. |
+| **AI Inference** | `Groq Cloud` | Ultra-low-latency API powering the reasoning framework for SphereAI. |
 
 ---
 
-## 📐 System Architecture
+## 📐 System Flow Diagram
 
 ```mermaid
 graph TD
-    User((Student/Faculty)) -->|Next.js App Router| Terminal[Command-Terminal UI]
-    Terminal -->|Firebase Auth| Gatekeeper[Identity Gatekeeper]
-    Gatekeeper -->|Unverified Faculty| Oracle[Autonomous Faculty Oracle]
-    Oracle -->|Scrapes| Directory[(MUJ Directory)]
-    Gatekeeper -->|Verified| Dashboard[Role-Based Dashboards]
-    Dashboard -->|API Sync| Scraper[Edge Chromium Scraper]
-    Scraper -->|POST| SLCM[University Portal]
-    SLCM -->|RAW Data| Scraper
-    Scraper -->|Structured JSON| Firestore[(Firestore Core)]
-    Dashboard -->|Neural Injection| AI[SphereAI Engine]
+    User((Student / Faculty)) -->|Next.js App Router| Platform[StudentSphere UI]
+
+    Platform -->|Firebase Auth| Gatekeeper{Identity Guard}
+    Gatekeeper -->|Unverified Faculty| Oracle[Faculty Verification API]
+    Oracle -->|Scrapes Identity| Directory[(Institutional Directory)]
+    Directory -->|Identity Verified| Gatekeeper
+
+    Gatekeeper -->|Authorized| Dashboards[Role-Based Dashboards]
+    Dashboards -->|Data Sync Request| Scraper[Edge Chromium Scraper]
+    Scraper -->|POST Request| SLCM[Legacy SLCM Portal]
+    SLCM -->|RAW DOM Data| Scraper
+    Scraper -->|Structured JSON| Firestore[(Firestore DB)]
+    
+    Firestore -->|Live Telemetry| AI[SphereAI Engine]
+    AI -->|Strategic Output| Dashboards
 ```
 
 ---
 
-## 📬 Contact & Collaboration
+## 🗺️ Project Roadmap
 
-* **Lead Architect:** [Shrey Bansal](https://github.com/shreybansal365)
-* **Secure Comm:** [shreybansal365@gmail.com](mailto:shreybansal365@gmail.com)
+- [x] **Phase 1: Foundations** - Core authentication, layout structures, and scraping logic.
+- [x] **Phase 2: Faculty Dashboard** - Real-time attendance, assignment, and academic marks management.
+- [x] **Phase 3: Intelligence** - Integration of the SphereAI context-aware engine.
+- [x] **Phase 4: Identity Hardening** - Implementation of the automated faculty verification process.
+- [x] **Phase 5: Deployment** - Production release on Vercel with strict Firestore security rules.
+- [ ] **Phase 6: Collaboration** - Encrypted peer-to-peer discussions and batch-wide broadcasting.
+
+---
+
+## 📬 Contact Information
+
+For access provisioning, architectural discussions, or collaboration inquiries:
+
+* **Lead Developer:** Shrey Bansal
+* **Email:** [shreybansal365@gmail.com](mailto:shreybansal365@gmail.com)
+* **GitHub:** [@shreybansal365](https://github.com/shreybansal365)
 
 <p align="center">
   <br />
-  <strong>Built with ❤️ by Shrey Bansal — Manipal University Jaipur 2026.</strong>
+  <strong>Developed by Shrey Bansal — Manipal University Jaipur 2026.</strong>
 </p>
